@@ -1,0 +1,11 @@
+import './config.js';
+import { fileURLToPath } from 'node:url';
+import { createLocalApp } from './local-app.js';
+import { envPath } from './config.js';
+const buildDirectory = fileURLToPath(new URL('../build/', import.meta.url));
+const app = createLocalApp({ buildDirectory });
+const required = ['MONGODB_URI', 'RESEND_API_KEY', 'EMAIL_FROM', 'RATE_LIMIT_SECRET', 'ALLOWED_ORIGINS'];
+const missing = required.filter(key => !process.env[key]?.trim());
+if (missing.length) console.warn(`Contact setup incomplete in ${envPath}: ${missing.join(', ')}`);
+const port = Number(process.env.PORT) || 3001;
+app.listen(port, '127.0.0.1', () => console.log(`Lungsom Studio API: http://127.0.0.1:${port}`));

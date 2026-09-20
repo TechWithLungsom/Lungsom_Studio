@@ -1,0 +1,31 @@
+{
+  "name": "lungsom-studio",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "concurrently -k -n api,web \"node server/index.js\" \"vite --config vite.config.js\"",
+    "build": "vite build --config vite.config.js",
+    "start": "node server/index.js",
+    "test": "node --test --test-concurrency=1 tests/*.test.js"
+  },
+  "dependencies": {
+    "dotenv": "^18.0.1",
+    "express": "^5.2.1",
+    "helmet": "^8.3.0",
+    "mongoose": "^9.10.1",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^6.1.1",
+    "concurrently": "^10.0.5",
+    "mongodb-memory-server": "^11.2.0",
+    "supertest": "^7.2.2",
+    "vite": "^8.3.0"
+  }
+}
