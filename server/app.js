@@ -33,6 +33,8 @@ export function createApp({ config = process.env, repository, deliver = sendEnqu
       console.error('Enquiry database health check failed', {
         name: error?.name,
         code: error?.code ?? error?.cause?.code,
+        host: error?.hostname ?? error?.cause?.hostname,
+        syscall: error?.syscall ?? error?.cause?.syscall,
       });
       return res.status(503).json({ ok: false, message: 'Enquiry database unavailable.' });
     }
@@ -97,6 +99,8 @@ export function createApp({ config = process.env, repository, deliver = sendEnqu
         requestId: data.requestId,
         name: error?.name,
         code: error?.code ?? error?.cause?.code,
+        host: error?.hostname ?? error?.cause?.hostname,
+        syscall: error?.syscall ?? error?.cause?.syscall,
       });
       return res.status(503).json({ message: 'We couldn’t process your enquiry right now. Please retry or contact me on WhatsApp.' });
     }
