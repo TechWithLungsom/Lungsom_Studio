@@ -28,6 +28,18 @@ export function createApp({ config = process.env, repository, deliver = sendEnqu
   app.get('/api/health', (_req, res) => res.json({ ok: true }));
   app.use('/api/contact', (req, res, next) => {
     const origins = (config.ALLOWED_ORIGINS || '').split(',').map(value => value.trim()).filter(Boolean);
+    // Vercel assigns a branch URL to Preview deployments. Add that exact
+    // HTTPS origin so preview forms work without allowing arbitrary hosts.
+    if (config.VERCEL && config.VERCEL_BRANCH_URL) {
+      try {
+        const branchUrl = new URL(`https://${config.VERCEL_BRANCH_URL}`);
+        if (branchUrl.protocol === 'https:' && branchUrl.pathname === '/' && !branchUrl.search && !branchUrl.hash) {
+          origins.push(branchUrl.origin);
+        }
+      } catch {
+        // Ignore malformed platform configuration; explicit origins still apply.
+      }
+    }
     if (req.headers.origin && !origins.includes(req.headers.origin)) return res.status(403).json({ message: 'Please submit your enquiry from the studio website.' });
     if (req.method === 'POST' && !req.is('application/json')) return res.status(415).json({ message: 'Please send a valid enquiry form.' });
     next();
