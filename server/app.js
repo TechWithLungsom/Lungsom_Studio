@@ -25,7 +25,18 @@ export function createApp({ config = process.env, repository, deliver = sendEnqu
     directives: { 'script-src': ["'self'"], 'style-src': ["'self'", 'https://fonts.googleapis.com'], 'font-src': ["'self'", 'https://fonts.gstatic.com'], 'img-src': ["'self'", 'data:'], 'connect-src': ["'self'"], 'upgrade-insecure-requests': config.NODE_ENV === 'production' ? [] : null },
   } }));
   app.use('/api', (_req, res, next) => { res.set('Cache-Control', 'no-store'); next(); });
-  app.get('/api/health', (_req, res) => res.json({ ok: true }));
+  app.get('/api/health', async (_req, res) => {
+    try {
+      await store.ping();
+      return res.json({ ok: true });
+    } catch (error) {
+      console.error('Enquiry database health check failed', {
+        name: error?.name,
+        code: error?.code ?? error?.cause?.code,
+      });
+      return res.status(503).json({ ok: false, message: 'Enquiry database unavailable.' });
+    }
+  });
   app.use('/api/contact', (req, res, next) => {
     const origins = (config.ALLOWED_ORIGINS || '').split(',').map(value => value.trim()).filter(Boolean);
     // Vercel assigns a branch URL to Preview deployments. Add that exact
@@ -81,8 +92,12 @@ export function createApp({ config = process.env, repository, deliver = sendEnqu
       try { await store.markSent(data.requestId, providerId); }
       catch { console.error('Enquiry delivery status update failed', data.requestId); }
       return res.json({ ok: true });
-    } catch {
-      console.error('Contact service request failed', data.requestId);
+    } catch (error) {
+      console.error('Contact service request failed', {
+        requestId: data.requestId,
+        name: error?.name,
+        code: error?.code ?? error?.cause?.code,
+      });
       return res.status(503).json({ message: 'We couldn’t process your enquiry right now. Please retry or contact me on WhatsApp.' });
     }
   });

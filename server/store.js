@@ -29,6 +29,10 @@ export function createStore(uri) {
     return ready;
   }
   return {
+    async ping() {
+      const { connection } = await models();
+      return connection.db.admin().ping();
+    },
     async takeLimit(key, max, duration) {
       const { Limit } = await models();
       const bucket = Math.floor(Date.now() / duration);
