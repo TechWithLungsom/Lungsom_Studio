@@ -17,7 +17,7 @@ export function createStore(uri) {
     if (!ready) {
       ready = (async () => {
         const connection = await mongoose.createConnection(uri, {
-          maxPoolSize: 5, serverSelectionTimeoutMS: 5000, connectTimeoutMS: 5000,
+          dbName: 'lungsom_studio', maxPoolSize: 5, serverSelectionTimeoutMS: 5000, connectTimeoutMS: 5000,
         }).asPromise();
         const Enquiry = connection.model('Enquiry', enquirySchema);
         const Limit = connection.model('ContactLimit', limitSchema);
